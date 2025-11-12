@@ -1,0 +1,382 @@
+{"2023-24 UK": 
+    {"income tax": [
+        {"name": "basic", "rate": 0.2, "threshold": 37700},
+        {"name": "higher", "rate": 0.4, "threshold": 125140},
+        {"name": "additional", "rate": 0.45}
+    ],
+    
+    "statutory personal allowance": 12570,
+    "allowance withdrawal threshold": 100000,
+    "allowance withdrawal rate": 0.50,
+    
+    "child benefit": {"1st": 24, "subsequent": 15.90},
+    "HICBC start": 50000, "HICBC end": 60000,
+    
+    "childcare subsidy per child": 10000,
+    "childcare min earnings": 7904, 
+    "childcare max earnings": 100000,
+    "childcare max children": 2,
+
+    "marriage allowance": 0.10,
+    "marriage allowance max earnings": 50270,
+    
+    "NI class 1 (employees)": [
+        {"name": "below primary threshold", "rate": 0, "threshold": 12570},
+        {"name": "primary threshold", "rate": 0.10, "threshold": 50270},
+        {"name": "upper earnings limit", "rate": 0.02}
+    ],
+
+    "NI class 2 (self-employed)": {
+      "weekly_amount": 3.45,
+      "small_profits_threshold": 6725
+    },
+
+    "NI class 4 (self-employed)": [
+      {"name": "below lower profits limit", "rate": 0, "threshold": 12570},
+      {"name": "main rate", "rate": 0.09, "threshold": 50270},
+      {"name": "above upper profits limit", "rate": 0.02}
+    ]
+
+    },
+
+
+"2023-24 Scotland": 
+    {"income tax": [
+        {"name": "starter", "rate": 0.19, "threshold": 2161},
+        {"name": "basic", "rate": 0.20, "threshold": 13117},
+        {"name": "intermediate", "rate": 0.21, "threshold": 31090},
+        {"name": "higher", "rate": 0.42, "threshold": 125140},
+        {"name": "top", "rate": 0.47}
+    ],
+    
+    "statutory personal allowance": 12570,
+    "allowance withdrawal threshold": 100000,
+    "allowance withdrawal rate": 2,
+    
+    "child benefit": {"1st": 25.60, "subsequent": 16.95},
+    "HICBC start": 50000, "HICBC income per percent reduction": 100,
+    
+    "childcare subsidy per child": 10000,
+    "childcare min earnings": 7904, 
+    "childcare max earnings": 100000,
+    "childcare max children": 2,
+
+    "marriage allowance": 0.10,
+    "marriage allowance max earnings": 43662,
+    
+    "NI class 1 (employees)": [
+        {"name": "below primary threshold", "rate": 0, "threshold": 12570},
+        {"name": "primary threshold", "rate": 0.08, "threshold": 50270},
+        {"name": "upper earnings limit", "rate": 0.02}
+    ],
+
+    "NI class 2 (self-employed)": {
+      "weekly_amount": 3.45,
+      "small_profits_threshold": 6725
+    },
+
+    "NI class 4 (self-employed)": [
+      {"name": "below lower profits limit", "rate": 0, "threshold": 12570},
+      {"name": "main rate", "rate": 0.09, "threshold": 50270},
+      {"name": "above upper profits limit", "rate": 0.02}
+    ]
+    },
+
+    "2025-26 UK": 
+    {"income tax": [
+        {"name": "basic", "rate": 0.2, "threshold": 37700},
+        {"name": "higher", "rate": 0.4, "threshold": 125140},
+        {"name": "additional", "rate": 0.45}
+    ],
+    
+    "statutory personal allowance": 12570,
+    "allowance withdrawal threshold": 100000,
+    "allowance withdrawal rate": 0.50,
+    
+    "child benefit": {"1st": 26.05, "subsequent": 17.25},
+    "HICBC start": 60000, "HICBC income per percent reduction": 200,
+    
+    "childcare subsidy per child": 10000,
+    "childcare min earnings": 10158, 
+    "childcare max earnings": 100000,
+    "childcare max children": 2,
+
+    "marriage allowance": 0.10,
+    "marriage allowance max earnings": 50270,
+    
+    "NI class 1 (employees)": [
+        {"name": "below primary threshold", "rate": 0, "threshold": 12570},
+        {"name": "primary threshold", "rate": 0.08, "threshold": 50270},
+        {"name": "upper earnings limit", "rate": 0.02}
+    ],
+
+    "NI class 4 (self-employed)": [
+      {"name": "below lower profits limit", "rate": 0, "threshold": 12570},
+      {"name": "main rate", "rate": 0.06, "threshold": 50270},
+      {"name": "above upper profits limit", "rate": 0.02}
+    ]
+    },
+
+
+"2025-26 Scotland": 
+    {"income tax": [
+        {"name": "starter", "rate": 0.19, "threshold": 2827},
+        {"name": "basic", "rate": 0.20, "threshold": 14921},
+        {"name": "intermediate", "rate": 0.21, "threshold": 31092},
+        {"name": "higher", "rate": 0.42, "threshold": 62430},
+        {"name": "advanced", "rate": 0.45, "threshold": 125140},
+        {"name": "top", "rate": 0.48}
+    ],
+    
+    "statutory personal allowance": 12570,
+    "allowance withdrawal threshold": 100000,
+    "allowance withdrawal rate": 2,
+    
+    "child benefit": {"1st": 26.05, "subsequent": 17.25},
+    "HICBC start": 60000, "HICBC income per percent reduction": 200,
+    
+    "childcare subsidy per child": 10000,
+    "childcare min earnings": 10158, 
+    "childcare max earnings": 100000,
+    "childcare max children": 2,
+
+    "marriage allowance": 0.10,
+    "marriage allowance max earnings": 43662,
+    
+    "NI class 1 (employees)": [
+        {"name": "below primary threshold", "rate": 0, "threshold": 12570},
+        {"name": "primary threshold", "rate": 0.08, "threshold": 50270},
+        {"name": "upper earnings limit", "rate": 0.02}
+    ],
+
+    "NI class 4 (self-employed)": [
+      {"name": "below lower profits limit", "rate": 0, "threshold": 12570},
+      {"name": "main rate", "rate": 0.06, "threshold": 50270},
+      {"name": "above upper profits limit", "rate": 0.02}
+    ]
+    },
+
+"Budget - Resolution Foundation 2p 'switch'": 
+    {"income tax": [
+        {"name": "basic", "rate": 0.22, "threshold": 37700},
+        {"name": "higher", "rate": 0.42, "threshold": 125140},
+        {"name": "additional", "rate": 0.47}
+    ],
+    
+    "statutory personal allowance": 12570,
+    "allowance withdrawal threshold": 100000,
+    "allowance withdrawal rate": 0.50,
+    
+    "child benefit": {"1st": 26.05, "subsequent": 17.25},
+    "HICBC start": 60000, "HICBC income per percent reduction": 200,
+    
+    "childcare subsidy per child": 10000, 
+    "childcare min earnings": 10158, 
+    "childcare max earnings": 100000,
+    "childcare max children": 2,
+
+    "marriage allowance": 0.10,
+    "marriage allowance max earnings": 50270,
+    
+    "NI class 1 (employees)": [
+        {"name": "below primary threshold", "rate": 0, "threshold": 12570},
+        {"name": "primary threshold", "rate": 0.06, "threshold": 50270},
+        {"name": "upper earnings limit", "rate": 0.02}
+    ],
+
+    "NI class 4 (self-employed)": [
+      {"name": "below lower profits limit", "rate": 0, "threshold": 12570},
+      {"name": "main rate", "rate": 0.06, "threshold": 50270},
+      {"name": "above upper profits limit", "rate": 0.02}
+    ]
+    },
+
+
+    "Budget - IFS 1p": 
+    {"income tax": [
+        {"name": "basic", "rate": 0.21, "threshold": 37700},
+        {"name": "higher", "rate": 0.41, "threshold": 125140},
+        {"name": "additional", "rate": 0.46}
+    ],
+    
+    "statutory personal allowance": 12570,
+    "allowance withdrawal threshold": 100000,
+    "allowance withdrawal rate": 0.50,
+    
+    "child benefit": {"1st": 26.05, "subsequent": 17.25},
+    "HICBC start": 60000, "HICBC income per percent reduction": 200,
+    
+    "childcare subsidy per child": 10000,
+    "childcare min earnings": 10158, 
+    "childcare max earnings": 100000,
+    "childcare max children": 2,
+
+    "marriage allowance": 0.10,
+    "marriage allowance max earnings": 50270,
+    
+    "NI class 1 (employees)": [
+        {"name": "below primary threshold", "rate": 0, "threshold": 12570},
+        {"name": "primary threshold", "rate": 0.08, "threshold": 50270},
+        {"name": "upper earnings limit", "rate": 0.02}
+    ],
+
+    "NI class 4 (self-employed)": [
+      {"name": "below lower profits limit", "rate": 0, "threshold": 12570},
+      {"name": "main rate", "rate": 0.06, "threshold": 50270},
+      {"name": "above upper profits limit", "rate": 0.02}
+    ]
+    },
+
+"Budget - partnership NICs": 
+    {"income tax": [
+        {"name": "basic", "rate": 0.2, "threshold": 37700},
+        {"name": "higher", "rate": 0.4, "threshold": 125140},
+        {"name": "additional", "rate": 0.45}
+    ],
+
+    "statutory personal allowance": 12570,
+    "allowance withdrawal threshold": 100000,
+    "allowance withdrawal rate": 0.50,
+    
+    "child benefit": {"1st": 26.05, "subsequent": 17.25},
+    "HICBC start": 60000, "HICBC income per percent reduction": 200,
+    
+    "childcare subsidy per child": 10000,
+    "childcare min earnings": 10158, 
+    "childcare max earnings": 100000,
+    "childcare max children": 2,
+
+    "marriage allowance": 0.10,
+    "marriage allowance max earnings": 50270,
+    
+    "NI class 1 (employees)": [
+        {"name": "below primary threshold", "rate": 0, "threshold": 12570},
+        {"name": "primary threshold", "rate": 0.08, "threshold": 50270},
+        {"name": "upper earnings limit", "rate": 0.02}
+    ],
+
+    "NI class 4 (self-employed)": [
+      {"name": "below lower profits limit", "rate": 0, "threshold": 12570},
+      {"name": "main rate", "rate": 0.06, "threshold": 50270},
+      {"name": "above upper profits limit", "rate": 0.02}
+    ],
+
+    "partnership employer nic rate": 0.15
+
+    },
+
+"Budget - partnership NICs - Scotland": 
+    {"income tax": [
+        {"name": "starter", "rate": 0.19, "threshold": 2827},
+        {"name": "basic", "rate": 0.20, "threshold": 14921},
+        {"name": "intermediate", "rate": 0.21, "threshold": 31092},
+        {"name": "higher", "rate": 0.42, "threshold": 62430},
+        {"name": "advanced", "rate": 0.45, "threshold": 125140},
+        {"name": "top", "rate": 0.48}
+    ],
+    
+    "statutory personal allowance": 12570,
+    "allowance withdrawal threshold": 100000,
+    "allowance withdrawal rate": 2,
+    
+    "child benefit": {"1st": 26.05, "subsequent": 17.25},
+    "HICBC start": 60000, "HICBC income per percent reduction": 200,
+    
+    "childcare subsidy per child": 10000,
+    "childcare min earnings": 10158, 
+    "childcare max earnings": 100000,
+    "childcare max children": 2,
+
+    "marriage allowance": 0.10,
+    "marriage allowance max earnings": 43662,
+    
+    "NI class 1 (employees)": [
+        {"name": "below primary threshold", "rate": 0, "threshold": 12570},
+        {"name": "primary threshold", "rate": 0.08, "threshold": 50270},
+        {"name": "upper earnings limit", "rate": 0.02}
+    ],
+
+    "NI class 4 (self-employed)": [
+      {"name": "below lower profits limit", "rate": 0, "threshold": 12570},
+      {"name": "main rate", "rate": 0.06, "threshold": 50270},
+      {"name": "above upper profits limit", "rate": 0.02}
+    ],
+
+    "partnership employer nic rate": 0.15
+    },
+
+"Budget - Green Party": 
+    {"income tax": [
+        {"name": "basic", "rate": 0.2, "threshold": 37700},
+        {"name": "higher", "rate": 0.4, "threshold": 125140},
+        {"name": "additional", "rate": 0.45}
+    ],
+    
+    "statutory personal allowance": 12570,
+    "allowance withdrawal threshold": 100000,
+    "allowance withdrawal rate": 0.50,
+    
+    "child benefit": {"1st": 26.05, "subsequent": 17.25},
+    "HICBC start": 60000, "HICBC income per percent reduction": 200,
+    
+    "childcare subsidy per child": 10000,
+    "childcare min earnings": 10158, 
+    "childcare max earnings": 100000,
+    "childcare max children": 2,
+
+    "marriage allowance": 0.10,
+    "marriage allowance max earnings": 50270,
+    
+    "NI class 1 (employees)": [
+        {"name": "below primary threshold", "rate": 0, "threshold": 12570},
+        {"name": "primary threshold", "rate": 0.08, "threshold": 50270},
+        {"name": "upper earnings limit", "rate": 0.08}
+    ],
+
+    "NI class 4 (self-employed)": [
+      {"name": "below lower profits limit", "rate": 0, "threshold": 12570},
+      {"name": "main rate", "rate": 0.06, "threshold": 50270},
+      {"name": "above upper profits limit", "rate": 0.06}
+    ]
+    },
+
+
+"Budget - Green Party - Scotland": 
+    {"income tax": [
+        {"name": "starter", "rate": 0.19, "threshold": 2827},
+        {"name": "basic", "rate": 0.20, "threshold": 14921},
+        {"name": "intermediate", "rate": 0.21, "threshold": 31092},
+        {"name": "higher", "rate": 0.42, "threshold": 62430},
+        {"name": "advanced", "rate": 0.45, "threshold": 125140},
+        {"name": "top", "rate": 0.48}
+    ],
+    
+    "statutory personal allowance": 12570,
+    "allowance withdrawal threshold": 100000,
+    "allowance withdrawal rate": 2,
+    
+    "child benefit": {"1st": 26.05, "subsequent": 17.25},
+    "HICBC start": 60000, "HICBC income per percent reduction": 200,
+    
+    "childcare subsidy per child": 10000,
+    "childcare min earnings": 10158, 
+    "childcare max earnings": 100000,
+    "childcare max children": 2,
+
+    "marriage allowance": 0.10,
+    "marriage allowance max earnings": 43662,
+    
+    "NI class 1 (employees)": [
+        {"name": "below primary threshold", "rate": 0, "threshold": 12570},
+        {"name": "primary threshold", "rate": 0.08, "threshold": 50270},
+        {"name": "upper earnings limit", "rate": 0.08}
+    ],
+
+    "NI class 4 (self-employed)": [
+      {"name": "below lower profits limit", "rate": 0, "threshold": 12570},
+      {"name": "main rate", "rate": 0.06, "threshold": 50270},
+      {"name": "above upper profits limit", "rate": 0.06}
+    ]
+    }
+
+}

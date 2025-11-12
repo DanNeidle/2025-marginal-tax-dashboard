@@ -1,0 +1,300 @@
+<!--
+(c) Tax Policy Associates Ltd, 2025, licensed under the MIT licence.
+Permission is hereby granted, free of charge, to any person obtaining a copy of this software,
+to use it however they wish provided they attribute it to Tax Policy Associates Ltd.
+-->
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <title>UK Marginal Tax Rate Dashboard</title>
+        <link rel="icon" href="favicon.png" type="image/png">
+        <link rel="preconnect" href="https://fonts.googleapis.com">
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap" rel="stylesheet">
+        <link rel="stylesheet" href="style.css">
+        <script src="https://unpkg.com/vue@3/dist/vue.global.prod.js"></script>
+        <script src="https://cdn.plot.ly/plotly-latest.min.js"></script>
+    </head>
+<body>
+    <a href="#primary-results-title" class="skip-link">Skip to results</a>
+
+    <main id="app" role="main">
+        <header class="page-header" role="banner">
+            <h1>Tax calculator and marginal rates</h1>
+            <a href="http://taxpolicy.org.uk/marginal-rates-2025" target="_blank" class="logo-link">
+                <img src="logo_standard.png" alt="Tax Policy logo" class="logo">
+            </a>
+        </header>
+
+        <div class="top-bar" role="region" aria-labelledby="controls-heading" tabindex="0">
+            <div class="controls-card">
+                <div class="controls-container">
+                    <h2 id="controls-heading" class="sr-only">Chart and household controls</h2>
+                    <div class="control-row control-row--top">
+                    <div class="control control--chart-type">
+                        <label for="chart-type-select">Chart type:</label>
+                        <select id="chart-type-select" v-model="chartType">
+                            <option>Marginal rate</option>
+                            <option>Net v gross</option>
+                            <option>Effective rate</option>
+                        </select>
+                    </div>
+
+                    <div class="control control--dataset">
+                        <label for="dataset-select">Tax rules for:</label>
+                        <select id="dataset-select" v-model="selectedDataset">
+                            <option v-for="name in datasetOptions" :value="name">{{ name }}</option>
+                        </select>
+                    </div>
+
+                    <div class="control control--flip">
+                        <label>&nbsp;</label>
+                        <button
+                            type="button"
+                            class="flip-button"
+                            @click="flipDatasets"
+                            aria-label="Swap primary and comparison tax rule sets"
+                        >
+                            ⇆ Flip
+                        </button>
+                    </div>
+
+                    <div class="control control--compare">
+                        <label for="compare-select">Compare against:</label>
+                        <select id="compare-select" v-model="compareDataset">
+                            <option v-for="option in compareOptions" :value="option">{{ option }}</option>
+                        </select>
+                    </div>
+                </div>
+
+                <div class="control-row control-row--middle">
+                    <div class="control control--children">
+                        <label for="children-select">No. of children:</label>
+                        <select id="children-select" v-model.number="children">
+                            <option v-for="n in 7" :value="n-1">{{ n-1 }}</option>
+                        </select>
+                    </div>
+
+                    <div class="control control--childcare">
+                        <label for="childcare-select">Childcare subsidy:</label>
+                        <select id="childcare-select" v-model.number="childcareSubsidyAmount">
+                            <option v-for="option in childcareOptions" :value="option">£{{ option.toLocaleString() }}</option>
+                        </select>
+                    </div>
+
+                    <div class="control control--checkboxes">
+                        <fieldset class="option-fieldset">
+                            <legend class="sr-only">Additional calculation options</legend>
+                            <div class="checkbox-group" role="group" aria-label="Additional calculation options">
+                                <input type="checkbox" id="student-loan" v-model="includeStudentLoan">
+                                <label for="student-loan">Student Loan</label>
+                                <input type="checkbox" id="marriage-allowance" v-model="includeMarriageAllowance">
+                                <label for="marriage-allowance">Marriage Allowance</label>
+                            </div>
+                        </fieldset>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div
+            id="chart-container"
+            role="region"
+            tabindex="0"
+            :aria-label="`Chart showing ${chartType} for ${selectedDataset}${compareDataset && compareDataset !== 'None' ? ' compared with ' + compareDataset : ''}`"
+            aria-describedby="chart-description"
+        >
+            <div class="chart-actions">
+                <button
+                    type="button"
+                    class="icon-button download-button"
+                    aria-label="Download chart image"
+                    title="Download chart image"
+                    data-tooltip="Download image"
+                    @click="downloadChartImage"
+                >
+                    📷
+                </button>
+                <button
+                    type="button"
+                    class="icon-button download-button"
+                    aria-label="Download chart data"
+                    title="Download chart data"
+                    data-tooltip="Download data"
+                    @click="downloadChartData"
+                >
+                    ⬇︎
+                </button>
+            </div>
+            <div id="plotly-chart"></div>
+            <p id="chart-description" class="sr-only">
+                Chart updates automatically based on your selections. Zooming and panning are disabled; use the controls above to change what is displayed.
+            </p>
+        </div>
+
+        <section class="income-panel" role="form" aria-labelledby="income-input" tabindex="0">
+            <form class="income-form" @submit.prevent="applyCustomIncome">
+                <div class="control control--income">
+                    <label for="income-input">{{ incomeInputLabel }}</label>
+                    <div class="input-with-clear">
+                        <input
+                            id="income-input"
+                            type="number"
+                            min="0"
+                            step="1"
+                            placeholder="e.g. 55,000"
+                            v-model.number="customIncomeInput"
+                        >
+                        <button
+                            v-if="customIncomeInput !== null && customIncomeInput !== ''"
+                            type="button"
+                            class="clear-input"
+                            @click="clearIncome"
+                            aria-label="Clear income input"
+                        >
+                            ×
+                        </button>
+                    </div>
+                </div>
+                <button type="submit" class="apply-button">Apply</button>
+                <div class="employment-type-select">
+                    <select v-model="employmentType" aria-label="Employment type">
+                        <option>Employed</option>
+                        <option>Self-employed</option>
+                        <option>Partnership/LLP</option>
+                    </select>
+                </div>
+            </form>
+        </section>
+
+        <section class="results-card" aria-live="polite" aria-labelledby="primary-results-title" tabindex="0">
+            <h3 class="results-card-title" id="primary-results-title">{{ selectedDataset }}</h3>
+            <header class="results-summary" role="group" aria-label="Summary of results">
+                <div class="result-metric">
+                    <p class="metric-label">After-tax income</p>
+                    <p class="metric-value">{{ summaryResults.afterTaxIncome }}</p>
+                </div>
+                <div class="result-metric">
+                    <p class="metric-label">Total tax & NI</p>
+                    <p class="metric-value metric-value--accent">{{ summaryResults.totalTax }}</p>
+                </div>
+                <div class="result-metric">
+                    <p class="metric-label">Effective rate</p>
+                    <p class="metric-value metric-value--accent">{{ summaryResults.effectiveRate }}</p>
+                    <p class="metric-note">tax burden as % of gross</p>
+                </div>
+                <div class="result-metric">
+                    <p class="metric-label">Marginal rate</p>
+                    <p class="metric-value metric-value--accent">{{ summaryResults.marginalRate }}</p>
+                    <p class="metric-note">next £100 of income</p>
+                </div>
+            </header>
+            <details class="results-details">
+                <summary>
+                    <span class="chevron" aria-hidden="true"></span>
+                    Detailed breakdown
+                </summary>
+                    <p class="personal-allowance-line">
+                        Personal allowance: £{{ detailResults.personalAllowance ? detailResults.personalAllowance.toLocaleString() : '0' }}
+                    </p>
+                    <div class="breakdown-grid">
+                    <div class="breakdown-section">
+                        <h4>Income tax</h4>
+                        <ul>
+                            <li v-for="band in detailResults.incomeTaxBands" :key="band.label">
+                                <span>{{ band.label }}</span>
+                                <span>{{ band.amount }}</span>
+                            </li>
+                        </ul>
+                        <div class="breakdown-total">
+                            <span>Total</span>
+                            <span>{{ detailResults.incomeTaxTotal }}</span>
+                        </div>
+                    </div>
+                    <div class="breakdown-section">
+                        <h4>National insurance</h4>
+                        <ul>
+                            <li v-for="band in detailResults.niBands" :key="band.label">
+                                <span>{{ band.label }}</span>
+                                <span>{{ band.amount }}</span>
+                            </li>
+                        </ul>
+                        <div class="breakdown-total">
+                            <span>Total</span>
+                            <span>{{ detailResults.niTotal }}</span>
+                        </div>
+                    </div>
+                    <div class="breakdown-section">
+                        <h4>Adjustments</h4>
+                        <ul>
+                            <li v-for="adjustment in detailResults.adjustments" :key="adjustment.label">
+                                <span>{{ adjustment.label }}</span>
+                                <span :class="{'adjustment-positive': adjustment.type === 'credit'}">{{ adjustment.amount }}</span>
+                            </li>
+                        </ul>
+                        <div class="breakdown-total">
+                            <span>Net adjustments</span>
+                            <span>{{ detailResults.adjustmentsTotal }}</span>
+                        </div>
+                    </div>
+                </div>
+            </details>
+            <div
+                class="comparison-summary-wrapper"
+                v-if="comparisonResults"
+                aria-live="polite"
+                aria-labelledby="comparison-results-title"
+                tabindex="0"
+            >
+                <div class="comparison-summary-header">
+                    <h4 class="comparison-summary-title" id="comparison-results-title">{{ comparisonResults.datasetName }}</h4>
+                </div>
+                <div class="results-summary results-summary--comparison" role="group" aria-label="Comparison summary">
+                    <div class="result-metric">
+                        <p class="metric-label">After-tax income Δ</p>
+                        <p :class="['metric-value', 'metric-value--accent', comparisonResults.afterTax.negative ? 'delta-negative' : '']">
+                            {{ comparisonResults.afterTax.value }}
+                        </p>
+                    </div>
+                    <div class="result-metric">
+                        <p class="metric-label">Total tax & NI</p>
+                        <p class="metric-value metric-value--accent">
+                            {{ comparisonResults.totalTax.value }}
+                        </p>
+                    </div>
+                    <div class="result-metric">
+                        <p class="metric-label">Effective rate</p>
+                        <p class="metric-value metric-value--accent">
+                            {{ comparisonResults.effectiveRate.value }}
+                        </p>
+                    </div>
+                    <div class="result-metric">
+                        <p class="metric-label">Marginal rate</p>
+                        <p class="metric-value metric-value--accent">
+                            {{ comparisonResults.marginalRate.value }}
+                        </p>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <p class="disclaimer">
+            Please note this tool is designed to illustrate the effect of UK tax policy and proposed changes; it is not a complete or accurate tax calculator and should not be relied upon for anyone's tax return. All calculations are local to your device, and nothing is sent to us or over the internet.
+        </p>
+
+    </main>
+    <script src="app.js"></script>
+    <script>
+        (function() {
+            const isEmbedded = window.self !== window.top;
+            const ref = document.referrer || '';
+            if (isEmbedded && ref.includes('taxpolicy.org.uk')) {
+                document.body.classList.add('hide-branding');
+            }
+        })();
+    </script>
+
+</body>
+</html>
