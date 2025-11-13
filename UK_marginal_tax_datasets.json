@@ -200,13 +200,13 @@
     "NI class 1 (employees)": [
         {"name": "below primary threshold", "rate": 0, "threshold": 12570},
         {"name": "primary threshold", "rate": 0.06, "threshold": 50270},
-        {"name": "upper earnings limit", "rate": 0.02}
+        {"name": "upper earnings limit", "rate": 0.00}
     ],
 
     "NI class 4 (self-employed)": [
       {"name": "below lower profits limit", "rate": 0, "threshold": 12570},
       {"name": "main rate", "rate": 0.06, "threshold": 50270},
-      {"name": "above upper profits limit", "rate": 0.02}
+      {"name": "above upper profits limit", "rate": 0.00}
     ],
 
     "employer NI": {
