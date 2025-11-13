@@ -95,11 +95,9 @@ createApp({
             const max_subsidy = this.taxData[this.selectedDataset]["childcare subsidy per child"] || 0;
             if (max_subsidy === 0) return [0];
 
-            const increments = 4;
-            const step = max_subsidy / increments;
-            let options = Array.from({ length: increments + 1 }, (_, i) => Math.round(i * step));
-            options[increments] = max_subsidy; // Ensure the last option is exact
-            return options;
+            const presetOptions = [0, 1000, 2000, 3000, 5000, 7500, 10000];
+            const filtered = presetOptions.filter(amount => amount <= max_subsidy);
+            return filtered.length ? filtered : [0];
         },
         employmentTerm() {
             const labels = {
