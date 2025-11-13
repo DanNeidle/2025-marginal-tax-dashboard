@@ -35,7 +35,12 @@
       {"name": "below lower profits limit", "rate": 0, "threshold": 12570},
       {"name": "main rate", "rate": 0.09, "threshold": 50270},
       {"name": "above upper profits limit", "rate": 0.02}
-    ]
+    ],
+
+    "employer NI": {
+        "employer nic rate": 0.135,
+        "employer nic secondary threshold": 175
+    }
 
     },
 
@@ -79,42 +84,52 @@
       {"name": "below lower profits limit", "rate": 0, "threshold": 12570},
       {"name": "main rate", "rate": 0.09, "threshold": 50270},
       {"name": "above upper profits limit", "rate": 0.02}
-    ]
+    ],
+
+    "employer NI": {
+        "employer nic rate": 0.135,
+        "employer nic secondary threshold": 175
+    }
+
     },
 
     "2025-26 UK": 
-    {"income tax": [
-        {"name": "basic", "rate": 0.2, "threshold": 37700},
-        {"name": "higher", "rate": 0.4, "threshold": 125140},
-        {"name": "additional", "rate": 0.45}
-    ],
-    
-    "statutory personal allowance": 12570,
-    "allowance withdrawal threshold": 100000,
-    "allowance withdrawal rate": 0.50,
-    
-    "child benefit": {"1st": 26.05, "subsequent": 17.25},
-    "HICBC start": 60000, "HICBC income per percent reduction": 200,
-    
-    "childcare subsidy per child": 10000,
-    "childcare min earnings": 10158, 
-    "childcare max earnings": 100000,
-    "childcare max children": 2,
+        {"income tax": [
+            {"name": "basic", "rate": 0.2, "threshold": 37700},
+            {"name": "higher", "rate": 0.4, "threshold": 125140},
+            {"name": "additional", "rate": 0.45}
+        ],
+        
+        "statutory personal allowance": 12570,
+        "allowance withdrawal threshold": 100000,
+        "allowance withdrawal rate": 0.50,
+        
+        "child benefit": {"1st": 26.05, "subsequent": 17.25},
+        "HICBC start": 60000, "HICBC income per percent reduction": 200,
+        
+        "childcare subsidy per child": 10000,
+        "childcare min earnings": 10158, 
+        "childcare max earnings": 100000,
+        "childcare max children": 2,
 
-    "marriage allowance": 0.10,
-    "marriage allowance max earnings": 50270,
-    
-    "NI class 1 (employees)": [
-        {"name": "below primary threshold", "rate": 0, "threshold": 12570},
-        {"name": "primary threshold", "rate": 0.08, "threshold": 50270},
-        {"name": "upper earnings limit", "rate": 0.02}
-    ],
+        "marriage allowance": 0.10,
+        "marriage allowance max earnings": 50270,
+        
+        "NI class 1 (employees)": [
+            {"name": "below primary threshold", "rate": 0, "threshold": 12570},
+            {"name": "primary threshold", "rate": 0.08, "threshold": 50270},
+            {"name": "upper earnings limit", "rate": 0.02}
+        ],
 
-    "NI class 4 (self-employed)": [
-      {"name": "below lower profits limit", "rate": 0, "threshold": 12570},
-      {"name": "main rate", "rate": 0.06, "threshold": 50270},
-      {"name": "above upper profits limit", "rate": 0.02}
-    ]
+        "NI class 4 (self-employed)": [
+            {"name": "below lower profits limit", "rate": 0, "threshold": 12570},
+            {"name": "main rate", "rate": 0.06, "threshold": 50270},
+            {"name": "above upper profits limit", "rate": 0.02}
+        ],
+        "employer NI": {
+            "employer nic rate": 0.15,
+            "employer nic secondary threshold": 96
+        }
     },
 
 
@@ -150,10 +165,14 @@
     ],
 
     "NI class 4 (self-employed)": [
-      {"name": "below lower profits limit", "rate": 0, "threshold": 12570},
-      {"name": "main rate", "rate": 0.06, "threshold": 50270},
-      {"name": "above upper profits limit", "rate": 0.02}
-    ]
+        {"name": "below lower profits limit", "rate": 0, "threshold": 12570},
+        {"name": "main rate", "rate": 0.06, "threshold": 50270},
+        {"name": "above upper profits limit", "rate": 0.02}
+    ],
+    "employer NI": {
+        "employer nic rate": 0.15,
+        "employer nic secondary threshold": 96
+    }
     },
 
 "Budget - Resolution Foundation 2p 'switch'": 
@@ -188,11 +207,16 @@
       {"name": "below lower profits limit", "rate": 0, "threshold": 12570},
       {"name": "main rate", "rate": 0.06, "threshold": 50270},
       {"name": "above upper profits limit", "rate": 0.02}
-    ]
+    ],
+
+    "employer NI": {
+        "employer nic rate": 0.15,
+        "employer nic secondary threshold": 96
+    }
     },
 
 
-    "Budget - IFS 1p": 
+"Budget - IFS 1p": 
     {"income tax": [
         {"name": "basic", "rate": 0.21, "threshold": 37700},
         {"name": "higher", "rate": 0.41, "threshold": 125140},
@@ -224,7 +248,11 @@
       {"name": "below lower profits limit", "rate": 0, "threshold": 12570},
       {"name": "main rate", "rate": 0.06, "threshold": 50270},
       {"name": "above upper profits limit", "rate": 0.02}
-    ]
+    ],
+    "employer NI": {
+        "employer nic rate": 0.15,
+        "employer nic secondary threshold": 96
+    }
     },
 
 "Budget - partnership NICs": 
@@ -261,7 +289,11 @@
       {"name": "above upper profits limit", "rate": 0.02}
     ],
 
-    "partnership employer nic rate": 0.15
+    "employer NI": {
+        "partnership employer nic rate": 0.15,
+        "employer nic rate": 0.15,
+        "employer nic secondary threshold": 96
+    }
 
     },
 
@@ -302,7 +334,12 @@
       {"name": "above upper profits limit", "rate": 0.02}
     ],
 
-    "partnership employer nic rate": 0.15
+    "employer NI": {
+        "partnership employer nic rate": 0.15,
+        "employer nic rate": 0.15,
+        "employer nic secondary threshold": 96
+    }
+
     },
 
 "Budget - Green Party": 
@@ -337,7 +374,11 @@
       {"name": "below lower profits limit", "rate": 0, "threshold": 12570},
       {"name": "main rate", "rate": 0.06, "threshold": 50270},
       {"name": "above upper profits limit", "rate": 0.06}
-    ]
+    ],
+    "employer NI": {
+        "employer nic rate": 0.15,
+        "employer nic secondary threshold": 96
+    }
     },
 
 
@@ -376,7 +417,12 @@
       {"name": "below lower profits limit", "rate": 0, "threshold": 12570},
       {"name": "main rate", "rate": 0.06, "threshold": 50270},
       {"name": "above upper profits limit", "rate": 0.06}
-    ]
+    ],
+    "employer NI": {
+        "partnership employer nic rate": 0.15,
+        "employer nic rate": 0.15,
+        "employer nic secondary threshold": 96
+    }
     }
 
 }

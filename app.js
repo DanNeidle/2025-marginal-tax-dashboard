@@ -5,6 +5,22 @@ to use it however they wish provided they attribute it to Tax Policy Associates 
 */
 const { createApp } = Vue;
 
+const STUDENT_LOAN_COMPONENTS = {
+    plan1: { rate: 0.09, threshold: 26065 },
+    plan2: { rate: 0.09, threshold: 28470 },
+    plan4: { rate: 0.09, threshold: 32745 },
+    plan5: { rate: 0.09, threshold: 25000 },
+    plan3: { rate: 0.06, threshold: 21000 }
+};
+
+function buildStudentLoanPlan(id, label, componentKeys) {
+    return {
+        id,
+        label,
+        components: componentKeys.map(key => ({ ...STUDENT_LOAN_COMPONENTS[key] }))
+    };
+}
+
 createApp({
     // =====================
     //  Data Properties
@@ -12,8 +28,6 @@ createApp({
     data() {
         return {
             // --- Modelling Constants ---
-            STUDENT_LOAN_RATE: 0.09,
-            STUDENT_LOAN_THRESHOLD: 27295,
             MAX_INCOME: 180000,
             PERTURBATION: 100,
             CHART_COLOURS: ['#1133AF', '#FF5733'],
@@ -26,6 +40,7 @@ createApp({
             childcareSubsidyAmount: 0,
             includeStudentLoan: false,
             includeMarriageAllowance: false,
+            selectedStudentLoanPlan: 'plan2',
             compareDataset: "None",
             customIncomeInput: null,
             displayedIncome: null,
@@ -46,6 +61,17 @@ createApp({
             },
             latestPrimarySummary: null,
             comparisonResults: null,
+            studentLoanPlans: [
+                buildStudentLoanPlan('plan1', 'Plan 1 (before Sept 2012)', ['plan1']),
+                buildStudentLoanPlan('plan2', 'Plan 2 (Sept 2012 to July 2023)', ['plan2']),
+                buildStudentLoanPlan('plan4', 'Plan 4 (Scotland)', ['plan4']),
+                buildStudentLoanPlan('plan5', 'Plan 5 (after August 2023)', ['plan5']),
+                buildStudentLoanPlan('plan3', 'Plan 3 (postgraduate loan only)', ['plan3']),
+                buildStudentLoanPlan('plan1_pg', 'Plan 1 + postgraduate loan', ['plan1', 'plan3']),
+                buildStudentLoanPlan('plan2_pg', 'Plan 2 + postgraduate loan', ['plan2', 'plan3']),
+                buildStudentLoanPlan('plan4_pg', 'Plan 4 + postgraduate loan', ['plan4', 'plan3']),
+                buildStudentLoanPlan('plan5_pg', 'Plan 5 + postgraduate loan', ['plan5', 'plan3'])
+            ],
 
             // --- Tax Data (copied from JSON) ---
             taxData: {} // Will be loaded from tax_data.js
@@ -79,7 +105,9 @@ createApp({
             const labels = {
                 'Employed': 'employment',
                 'Self-employed': 'self-employment',
-                'Partnership/LLP': 'partnership/LLP'
+                'Partnership/LLP': 'partnership/LLP',
+                'Retired/State pension age': 'retirement',
+                'Within IR35': 'IR35 contract'
             };
             return labels[this.employmentType] || 'employment';
         },
@@ -87,7 +115,9 @@ createApp({
             const copies = {
                 'Employed': { label: 'Your gross income', note: 'gross income' },
                 'Self-employed': { label: 'Self-employment profits', note: 'self-employment profits' },
-                'Partnership/LLP': { label: 'Partnership/LLP profits', note: 'partnership/LLP profits' }
+                'Partnership/LLP': { label: 'Partnership/LLP profits', note: 'partnership/LLP profits' },
+                'Retired/State pension age': { label: 'Retirement income', note: 'retirement income' },
+                'Within IR35': { label: 'Contract income (within IR35)', note: 'contract income (IR35)' }
             };
             return copies[this.employmentType] || copies['Employed'];
         },
@@ -113,6 +143,12 @@ createApp({
         },
         includeStudentLoan() { this.updateResultsFromState(); this.updateChart(); },
         includeMarriageAllowance() { this.updateResultsFromState(); this.updateChart(); },
+        selectedStudentLoanPlan(newValue, oldValue) {
+            if (this.includeStudentLoan && newValue !== oldValue) {
+                this.updateResultsFromState();
+                this.updateChart();
+            }
+        },
         compareDataset() { this.updateResultsFromState(); this.updateChart(); },
         children(newValue, oldValue) {
             if (newValue === 0 && this.childcareSubsidyAmount !== 0) {
@@ -160,6 +196,7 @@ createApp({
             const isIncomeTax = taxType === "income tax";
             const bandRules = Array.isArray(relevantData[taxType]) ? relevantData[taxType] : [];
             const niClassLabel = isIncomeTax ? null : this.getNiClassLabel(taxType);
+            const activeStudentLoanPlan = this.getActiveStudentLoanPlan();
 
             if (isIncomeTax) {
                 // --- Personal Allowance ---
@@ -183,25 +220,17 @@ createApp({
                 }
 
                 // --- Student Loan ---
-                if (this.includeStudentLoan && grossIncome > this.STUDENT_LOAN_THRESHOLD) {
-                    const loanCharge = (grossIncome - this.STUDENT_LOAN_THRESHOLD) * this.STUDENT_LOAN_RATE;
-                    totalTax += loanCharge;
-                    if (collectDetails) {
-                        adjustments.push({ label: "Student loan", amount: loanCharge, type: "debit" });
-                    }
-                }
-
-                // --- Childcare Subsidy (credit plus clawback) ---
-                if (this.childcareSubsidyAmount > 0 && this.children > 0) {
-                    const maxChildren = relevantData["childcare max children"];
-                    const potentialSubsidy = this.childcareSubsidyAmount * Math.min(this.children, maxChildren);
-                    if (potentialSubsidy > 0) {
-                        const eligible = grossIncome > relevantData["childcare min earnings"] && grossIncome < relevantData["childcare max earnings"];
-                        const actualSubsidy = eligible ? potentialSubsidy : 0;
-                        totalTax -= actualSubsidy;
-
+                if (activeStudentLoanPlan) {
+                    const loanCharge = (activeStudentLoanPlan.components || []).reduce((sum, component) => {
+                        if (grossIncome > component.threshold) {
+                            return sum + (grossIncome - component.threshold) * component.rate;
+                        }
+                        return sum;
+                    }, 0);
+                    if (loanCharge > 0) {
+                        totalTax += loanCharge;
                         if (collectDetails) {
-                            adjustments.push({ label: "Childcare subsidy", amount: -actualSubsidy, type: "credit" });
+                            adjustments.push({ label: "Student loan", amount: loanCharge, type: "debit" });
                         }
                     }
                 }
@@ -297,7 +326,8 @@ createApp({
                 const incomeTax = this.calculateTaxAndNi(taxableIncome, ruleset, "income tax");
                 const nationalInsurance = this.calculateTaxAndNi(taxableIncome, ruleset, niTaxKey);
                 const totalTaxNi = incomeTax + nationalInsurance + employerNi;
-                const adjustedTotalTax = totalTaxNi - childBenefitCredit;
+                const childcareCredit = this.calculateChildcareSubsidy(grossIncome, relevantData);
+                const adjustedTotalTax = totalTaxNi - childBenefitCredit - childcareCredit;
                 const netIncome = grossIncome - adjustedTotalTax;
 
                 const marginalRate = grossIncome === 0 ? 0 : ((adjustedTotalTax - previousAdjustedTotalTax) / this.PERTURBATION * 100);
@@ -328,14 +358,83 @@ createApp({
             }
             return 52 * (relevantData["child benefit"]["1st"] + relevantData["child benefit"]["subsequent"] * (this.children - 1));
         },
-
-        getPartnershipEmployerRate(dataset) {
-            if (!dataset || this.employmentType !== 'Partnership/LLP') {
+        calculateChildcareSubsidy(grossIncome, relevantData) {
+            if (!relevantData || this.childcareSubsidyAmount <= 0 || this.children <= 0) {
                 return 0;
             }
-            const rawRate = dataset["partnership employer nic rate"] ?? dataset["partnership_employer_nic_rate"];
+            const maxChildren = Number(relevantData["childcare max children"]) || 0;
+            const eligibleChildren = Math.min(this.children, maxChildren || this.children);
+            if (eligibleChildren <= 0) {
+                return 0;
+            }
+            const potentialSubsidy = this.childcareSubsidyAmount * eligibleChildren;
+            if (potentialSubsidy <= 0) {
+                return 0;
+            }
+            const minEarnings = Number(relevantData["childcare min earnings"]);
+            if (Number.isFinite(minEarnings) && grossIncome <= minEarnings) {
+                return 0;
+            }
+            const maxEarnings = Number(relevantData["childcare max earnings"]);
+            if (Number.isFinite(maxEarnings) && grossIncome >= maxEarnings) {
+                return 0;
+            }
+            return potentialSubsidy;
+        },
+
+        getEmployerNiConfig(dataset) {
+            if (!dataset) {
+                return null;
+            }
+            const config = dataset["employer NI"] ?? dataset["employer_NI"];
+            if (config && typeof config === 'object') {
+                return config;
+            }
+            const fallback = {};
+            const partnershipRate = dataset["partnership employer nic rate"] ?? dataset["partnership_employer_nic_rate"];
+            if (partnershipRate !== undefined) {
+                fallback["partnership employer nic rate"] = partnershipRate;
+            }
+            const employerRate = dataset["employer nic rate"] ?? dataset["employer_nic_rate"];
+            if (employerRate !== undefined) {
+                fallback["employer nic rate"] = employerRate;
+            }
+            const threshold = dataset["employer nic secondary threshold"] ?? dataset["employer_nic_secondary_threshold"];
+            if (threshold !== undefined) {
+                fallback["employer nic secondary threshold"] = threshold;
+            }
+            return Object.keys(fallback).length > 0 ? fallback : null;
+        },
+        getEmployerNiRate(dataset) {
+            if (!dataset || !this.employmentRequiresEmployerNiGrossDown()) {
+                return 0;
+            }
+            const config = this.getEmployerNiConfig(dataset);
+            if (!config) {
+                return 0;
+            }
+            let rawRate = null;
+            if (this.employmentType === 'Partnership/LLP') {
+                rawRate = config["partnership employer nic rate"] ?? config["partnership_employer_nic_rate"];
+            } else if (this.employmentType === 'Within IR35') {
+                rawRate = config["employer nic rate"] ?? config["employer_nic_rate"];
+            }
             const rate = Number(rawRate);
             return Number.isFinite(rate) && rate > 0 ? rate : 0;
+        },
+        getEmployerSecondaryThreshold(dataset) {
+            if (!dataset || !this.employmentRequiresEmployerNiGrossDown()) {
+                return 0;
+            }
+            const config = this.getEmployerNiConfig(dataset);
+            if (!config) {
+                return 0;
+            }
+            const weeklyThreshold = Number(config["employer nic secondary threshold"] ?? config["employer_nic_secondary_threshold"]);
+            if (!Number.isFinite(weeklyThreshold) || weeklyThreshold <= 0) {
+                return 0;
+            }
+            return weeklyThreshold * 52;
         },
 
         transformIncomeForEmployment(grossIncome, dataset) {
@@ -343,20 +442,42 @@ createApp({
             if (!Number.isFinite(originalIncome) || originalIncome < 0) {
                 originalIncome = 0;
             }
-            const employerRate = this.getPartnershipEmployerRate(dataset);
+            const employerRate = this.getEmployerNiRate(dataset);
             if (employerRate <= 0) {
                 return { taxableIncome: originalIncome, employerNi: 0 };
             }
-            const taxableIncome = originalIncome / (1 + employerRate);
-            const employerNi = originalIncome - taxableIncome;
+            const annualSecondaryThreshold = this.getEmployerSecondaryThreshold(dataset);
+            if (annualSecondaryThreshold <= 0) {
+                const taxableIncome = originalIncome / (1 + employerRate);
+                const employerNi = originalIncome - taxableIncome;
+                return { taxableIncome, employerNi };
+            }
+            if (originalIncome <= annualSecondaryThreshold) {
+                return { taxableIncome: originalIncome, employerNi: 0 };
+            }
+            const taxableIncome = (originalIncome + employerRate * annualSecondaryThreshold) / (1 + employerRate);
+            const employerNi = Math.max(0, originalIncome - taxableIncome);
             return { taxableIncome, employerNi };
         },
 
         isSelfEmploymentType() {
             return this.employmentType === 'Self-employed' || this.employmentType === 'Partnership/LLP';
         },
+        employmentRequiresEmployerNiGrossDown() {
+            return this.employmentType === 'Partnership/LLP' || this.employmentType === 'Within IR35';
+        },
+
+        getActiveStudentLoanPlan() {
+            if (!this.includeStudentLoan) {
+                return null;
+            }
+            return this.studentLoanPlans.find(plan => plan.id === this.selectedStudentLoanPlan) || null;
+        },
 
         getActiveNiKey() {
+            if (this.employmentType === 'Retired/State pension age') {
+                return null;
+            }
             return this.isSelfEmploymentType() ? "NI class 4 (self-employed)" : "NI class 1 (employees)";
         },
 
@@ -756,7 +877,10 @@ createApp({
         },
 
         applyCustomIncome() {
-            const income = Number(this.customIncomeInput);
+            const rawValue = typeof this.customIncomeInput === 'string'
+                ? this.customIncomeInput.replace(/[^0-9.]/g, '')
+                : this.customIncomeInput;
+            const income = Number(rawValue);
             if ((!income && income !== 0) || income < 0 || !this.taxData[this.selectedDataset]) {
                 return;
             }
@@ -764,6 +888,7 @@ createApp({
                 this.clearIncome();
                 return;
             }
+            this.customIncomeInput = income.toLocaleString();
             this.computeResultsForIncome(income, true);
         },
 
@@ -772,6 +897,7 @@ createApp({
             if (!selectedData) return;
 
             const childBenefitCredit = this.getChildBenefitAmount(selectedData);
+            const childcareCredit = this.calculateChildcareSubsidy(income, selectedData);
             const niTaxKey = this.getActiveNiKey();
             const { taxableIncome, employerNi } = this.transformIncomeForEmployment(income, selectedData);
 
@@ -780,14 +906,16 @@ createApp({
 
             const niTotalWithEmployer = niDetails.total + employerNi;
             const totalTax = incomeTaxDetails.total + niTotalWithEmployer;
-            const adjustedTotalTax = totalTax - childBenefitCredit;
+            const childBenefitDisplayOffset = Math.min(childBenefitCredit, totalTax);
+            const displayedTotalTax = totalTax - childBenefitDisplayOffset;
+            const adjustedTotalTax = totalTax - childBenefitCredit - childcareCredit;
             const netIncome = income - adjustedTotalTax;
 
             this.latestPrimarySummary = {
                 dataset: this.selectedDataset,
                 income,
                 netIncome,
-                totalTax,
+                totalTax: displayedTotalTax,
                 effectiveRate: income === 0 ? 0 : (adjustedTotalTax / income) * 100,
                 marginalRate: null
             };
@@ -798,7 +926,7 @@ createApp({
             this.latestPrimarySummary.marginalRate = marginalRate;
 
             this.summaryResults.afterTaxIncome = this.formatCurrency(netIncome);
-            this.summaryResults.totalTax = this.formatCurrency(totalTax);
+            this.summaryResults.totalTax = this.formatCurrency(displayedTotalTax);
             this.summaryResults.effectiveRate = this.formatPercent(effectiveRate);
             this.summaryResults.marginalRate = this.formatPercent(marginalRate);
             this.displayedIncome = income;
@@ -807,29 +935,49 @@ createApp({
                 label: band.label,
                 amount: this.formatCurrency(band.amount)
             }));
+            const incomeTaxBandTotal = incomeTaxDetails.bands.reduce((sum, band) => sum + band.amount, 0);
 
             const formattedNiBands = niDetails.bands.map(band => ({
                 label: band.label,
                 amount: this.formatCurrency(band.amount)
             }));
             if (employerNi > 0) {
+                const employerNiLabel = this.employmentType === 'Within IR35'
+                    ? "Employer NI (IR35)"
+                    : "Employer NI (Partnership)";
                 formattedNiBands.push({
-                    label: "Employer NI (Partnership)",
+                    label: employerNiLabel,
                     amount: this.formatCurrency(employerNi)
                 });
             }
 
-            const formattedAdjustments = incomeTaxDetails.adjustments.map(adj => this.formatAdjustmentEntry(adj));
+            const baseAdjustments = incomeTaxDetails.adjustments
+                .map(adj => {
+                    const type = adj.type || (adj.amount >= 0 ? 'credit' : 'debit');
+                    return {
+                        ...adj,
+                        amount: Math.abs(adj.amount),
+                        type
+                    };
+                });
+            const adjustmentEntries = [...baseAdjustments];
 
             if (childBenefitCredit > 0) {
-                formattedAdjustments.unshift(
-                    this.formatAdjustmentEntry({
-                        label: "Child benefit",
-                        amount: childBenefitCredit,
-                        type: "credit"
-                    })
-                );
+                adjustmentEntries.unshift({
+                    label: "Child benefit",
+                    amount: childBenefitCredit,
+                    type: "credit"
+                });
             }
+            if (childcareCredit > 0) {
+                adjustmentEntries.push({
+                    label: "Childcare subsidy",
+                    amount: childcareCredit,
+                    type: "credit"
+                });
+            }
+
+            const formattedAdjustments = adjustmentEntries.map(adj => this.formatAdjustmentEntry(adj));
 
             const personalAllowanceValue = Math.round(
                 incomeTaxDetails.personalAllowance ?? this.taxData[this.selectedDataset]["statutory personal allowance"] ?? 0
@@ -839,7 +987,7 @@ createApp({
 
             this.detailResults = {
                 incomeTaxBands: formattedIncomeTaxBands,
-                incomeTaxTotal: this.formatCurrency(incomeTaxDetails.total),
+                incomeTaxTotal: this.formatCurrency(incomeTaxBandTotal),
                 niBands: formattedNiBands,
                 niTotal: this.formatCurrency(niTotalWithEmployer),
                 personalAllowance: personalAllowanceValue,
@@ -861,6 +1009,7 @@ createApp({
                 return { totalTax: 0, adjustedTax: 0 };
             }
             const childBenefitCredit = this.getChildBenefitAmount(dataset);
+            const childcareCredit = this.calculateChildcareSubsidy(grossIncome, dataset);
             const { taxableIncome, employerNi } = this.transformIncomeForEmployment(grossIncome, dataset);
             const niTaxKey = this.getActiveNiKey();
             const incomeTax = this.calculateTaxAndNi(taxableIncome, rulesetName, "income tax", false, 'actual');
@@ -868,17 +1017,21 @@ createApp({
             const totalTax = incomeTax + nationalInsurance + employerNi;
             return {
                 totalTax,
-                adjustedTax: totalTax - childBenefitCredit
+                adjustedTax: totalTax - childBenefitCredit - childcareCredit
             };
         },
 
         formatAdjustmentEntry(entry) {
-            const sign = entry.amount > 0 ? '+' : entry.amount < 0 ? '-' : '';
+            const isCredit = entry.type === 'credit';
+            const isDebit = entry.type === 'debit';
+            const absoluteAmount = Math.abs(entry.amount);
+            const sign = isCredit ? '+' : isDebit ? '-' : entry.amount > 0 ? '+' : entry.amount < 0 ? '-' : '';
+            const rawAmount = isCredit ? absoluteAmount : isDebit ? -absoluteAmount : entry.amount;
             return {
                 label: entry.label,
-                amount: `${sign}${this.formatCurrency(Math.abs(entry.amount))}`,
+                amount: `${sign}${this.formatCurrency(absoluteAmount)}`,
                 type: entry.type,
-                rawAmount: entry.amount
+                rawAmount
             };
         },
 
@@ -887,19 +1040,22 @@ createApp({
             if (!dataset) return null;
 
             const childBenefitCredit = this.getChildBenefitAmount(dataset);
+            const childcareCredit = this.calculateChildcareSubsidy(income, dataset);
             const { taxableIncome, employerNi } = this.transformIncomeForEmployment(income, dataset);
             const niTaxKey = this.getActiveNiKey();
             const incomeTax = this.calculateTaxAndNi(taxableIncome, datasetName, "income tax", false, 'actual');
             const nationalInsurance = this.calculateTaxAndNi(taxableIncome, datasetName, niTaxKey, false, 'actual');
             const totalTax = incomeTax + nationalInsurance + employerNi;
-            const adjustedTotalTax = totalTax - childBenefitCredit;
+            const childBenefitDisplayOffset = Math.min(childBenefitCredit, totalTax);
+            const displayedTotalTax = totalTax - childBenefitDisplayOffset;
+            const adjustedTotalTax = totalTax - childBenefitCredit - childcareCredit;
             const netIncome = income - adjustedTotalTax;
 
             const testTotals = this.calculateTotalAndAdjustedTax(income + this.PERTURBATION, datasetName);
             const marginalRate = ((testTotals.adjustedTax - adjustedTotalTax) / this.PERTURBATION) * 100;
             const effectiveRate = income === 0 ? 0 : (adjustedTotalTax / income) * 100;
 
-            return { dataset: datasetName, income, netIncome, totalTax, effectiveRate, marginalRate };
+            return { dataset: datasetName, income, netIncome, totalTax: displayedTotalTax, effectiveRate, marginalRate };
         },
 
         updateComparisonCard(income) {
@@ -984,14 +1140,7 @@ createApp({
         },
 
         runWithoutScrollJump(action) {
-            if (typeof window === 'undefined' || typeof window.scrollTo !== 'function') {
-                action();
-                return;
-            }
-            const scrollX = window.scrollX;
-            const scrollY = window.scrollY;
             action();
-            this.$nextTick(() => window.scrollTo(scrollX, scrollY));
         },
 
         clearIncome() {

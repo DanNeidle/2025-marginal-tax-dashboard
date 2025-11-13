@@ -78,9 +78,9 @@ to use it however they wish provided they attribute it to Tax Policy Associates 
                     </div>
 
                     <div class="control control--childcare">
-                        <label for="childcare-select">Childcare subsidy:</label>
+                        <label for="childcare-select">Childcare subsidy</label>
                         <select id="childcare-select" v-model.number="childcareSubsidyAmount">
-                            <option v-for="option in childcareOptions" :value="option">£{{ option.toLocaleString() }}</option>
+                            <option v-for="option in childcareOptions" :value="option">£{{ option.toLocaleString() }} per child</option>
                         </select>
                     </div>
 
@@ -88,10 +88,18 @@ to use it however they wish provided they attribute it to Tax Policy Associates 
                         <fieldset class="option-fieldset">
                             <legend class="sr-only">Additional calculation options</legend>
                             <div class="checkbox-group" role="group" aria-label="Additional calculation options">
-                                <input type="checkbox" id="student-loan" v-model="includeStudentLoan">
-                                <label for="student-loan">Student Loan</label>
                                 <input type="checkbox" id="marriage-allowance" v-model="includeMarriageAllowance">
                                 <label for="marriage-allowance">Marriage Allowance</label>
+                                <input type="checkbox" id="student-loan" v-model="includeStudentLoan">
+                                <label for="student-loan">Student Loan</label>
+                                <label for="student-loan-plan" class="sr-only">Select student loan plan</label>
+                                <select
+                                    id="student-loan-plan"
+                                    v-model="selectedStudentLoanPlan"
+                                    :disabled="!includeStudentLoan"
+                                >
+                                    <option v-for="plan in studentLoanPlans" :value="plan.id">{{ plan.label }}</option>
+                                </select>
                             </div>
                         </fieldset>
                     </div>
@@ -141,11 +149,11 @@ to use it however they wish provided they attribute it to Tax Policy Associates 
                     <div class="input-with-clear">
                         <input
                             id="income-input"
-                            type="number"
-                            min="0"
-                            step="1"
+                            type="text"
+                            inputmode="numeric"
+                            pattern="[0-9£,\s]*"
                             placeholder="e.g. 55,000"
-                            v-model.number="customIncomeInput"
+                            v-model="customIncomeInput"
                         >
                         <button
                             v-if="customIncomeInput !== null && customIncomeInput !== ''"
@@ -164,6 +172,8 @@ to use it however they wish provided they attribute it to Tax Policy Associates 
                         <option>Employed</option>
                         <option>Self-employed</option>
                         <option>Partnership/LLP</option>
+                        <option>Retired/State pension age</option>
+                        <option>Within IR35</option>
                     </select>
                 </div>
             </form>
