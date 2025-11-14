@@ -327,7 +327,7 @@ createApp({
                 const incomeTax = this.calculateTaxAndNi(taxableIncome, ruleset, "income tax");
                 const nationalInsurance = this.calculateTaxAndNi(taxableIncome, ruleset, niTaxKey);
                 const totalTaxNi = incomeTax + nationalInsurance + employerNi;
-                const childcareCredit = this.calculateChildcareSubsidy(grossIncome, relevantData);
+                const childcareCredit = this.calculateChildcareSubsidy(grossIncome, relevantData, taxableIncome);
                 const adjustedTotalTax = totalTaxNi - childBenefitCredit - childcareCredit;
                 const netIncome = grossIncome - adjustedTotalTax;
 
@@ -359,7 +359,7 @@ createApp({
             }
             return 52 * (relevantData["child benefit"]["1st"] + relevantData["child benefit"]["subsequent"] * (this.children - 1));
         },
-        calculateChildcareSubsidy(grossIncome, relevantData) {
+        calculateChildcareSubsidy(grossIncome, relevantData, taxableIncomeOverride = null) {
             if (!relevantData || this.childcareSubsidyAmount <= 0 || this.children <= 0) {
                 return 0;
             }
@@ -372,12 +372,14 @@ createApp({
             if (potentialSubsidy <= 0) {
                 return 0;
             }
+            const hasOverride = typeof taxableIncomeOverride === 'number' && Number.isFinite(taxableIncomeOverride);
+            const eligibilityIncome = hasOverride ? taxableIncomeOverride : grossIncome;
             const minEarnings = Number(relevantData["childcare min earnings"]);
-            if (Number.isFinite(minEarnings) && grossIncome <= minEarnings) {
+            if (Number.isFinite(minEarnings) && eligibilityIncome <= minEarnings) {
                 return 0;
             }
             const maxEarnings = Number(relevantData["childcare max earnings"]);
-            if (Number.isFinite(maxEarnings) && grossIncome >= maxEarnings) {
+            if (Number.isFinite(maxEarnings) && eligibilityIncome >= maxEarnings) {
                 return 0;
             }
             return potentialSubsidy;
@@ -657,6 +659,26 @@ createApp({
             };
         },
 
+        getMaxMarginalRate(results) {
+            if (!results || !Array.isArray(results.marginal)) {
+                return 0;
+            }
+            return results.marginal.reduce((max, value) => {
+                return Number.isFinite(value) ? Math.max(max, value) : max;
+            }, 0);
+        },
+
+        getMarginalAxisCeiling(baseResults, compareResults) {
+            const highestRate = Math.max(
+                this.getMaxMarginalRate(baseResults),
+                this.getMaxMarginalRate(compareResults)
+            );
+            if (highestRate > 90 && highestRate <= 200) {
+                return Math.min(200, Math.ceil(highestRate / 10) * 10);
+            }
+            return 90;
+        },
+
         /**
          * Main function to redraw the Plotly chart.
          */
@@ -673,6 +695,12 @@ createApp({
             const { yKey, layout, hoverTemplate } = this.getChartSettings();
             const isMobileViewport = window.matchMedia ? window.matchMedia('(max-width: 768px)').matches : false;
             const mobileDashPattern = '6px,6px';
+            let marginalAxisRange = null;
+
+            if (this.chartType === 'Marginal rate') {
+                const axisCeiling = this.getMarginalAxisCeiling(baseResults, compareResults);
+                marginalAxisRange = [0, axisCeiling];
+            }
 
             const traces = [
                 this.buildTrace(baseResults, this.selectedDataset, yKey, {
@@ -737,6 +765,9 @@ createApp({
             mergedLayout.dragmode = false;
             mergedLayout.xaxis = { ...(layout.xaxis || {}), fixedrange: true };
             mergedLayout.yaxis = { ...(layout.yaxis || {}), fixedrange: true };
+            if (marginalAxisRange) {
+                mergedLayout.yaxis.range = marginalAxisRange;
+            }
 
             Plotly.newPlot(
                 'plotly-chart',
@@ -931,9 +962,9 @@ createApp({
             this.updateMaxIncomeForValue(income);
 
             const childBenefitCredit = this.getChildBenefitAmount(selectedData);
-            const childcareCredit = this.calculateChildcareSubsidy(income, selectedData);
-            const niTaxKey = this.getActiveNiKey();
             const { taxableIncome, employerNi } = this.transformIncomeForEmployment(income, selectedData);
+            const childcareCredit = this.calculateChildcareSubsidy(income, selectedData, taxableIncome);
+            const niTaxKey = this.getActiveNiKey();
 
             const incomeTaxDetails = this.calculateTaxAndNi(taxableIncome, this.selectedDataset, "income tax", true, 'actual');
             const niDetails = this.calculateTaxAndNi(taxableIncome, this.selectedDataset, niTaxKey, true, 'actual');
@@ -1042,9 +1073,9 @@ createApp({
             if (!dataset) {
                 return { totalTax: 0, adjustedTax: 0 };
             }
-            const childBenefitCredit = this.getChildBenefitAmount(dataset);
-            const childcareCredit = this.calculateChildcareSubsidy(grossIncome, dataset);
             const { taxableIncome, employerNi } = this.transformIncomeForEmployment(grossIncome, dataset);
+            const childBenefitCredit = this.getChildBenefitAmount(dataset);
+            const childcareCredit = this.calculateChildcareSubsidy(grossIncome, dataset, taxableIncome);
             const niTaxKey = this.getActiveNiKey();
             const incomeTax = this.calculateTaxAndNi(taxableIncome, rulesetName, "income tax", false, 'actual');
             const nationalInsurance = this.calculateTaxAndNi(taxableIncome, rulesetName, niTaxKey, false, 'actual');
@@ -1074,8 +1105,8 @@ createApp({
             if (!dataset) return null;
 
             const childBenefitCredit = this.getChildBenefitAmount(dataset);
-            const childcareCredit = this.calculateChildcareSubsidy(income, dataset);
             const { taxableIncome, employerNi } = this.transformIncomeForEmployment(income, dataset);
+            const childcareCredit = this.calculateChildcareSubsidy(income, dataset, taxableIncome);
             const niTaxKey = this.getActiveNiKey();
             const incomeTax = this.calculateTaxAndNi(taxableIncome, datasetName, "income tax", false, 'actual');
             const nationalInsurance = this.calculateTaxAndNi(taxableIncome, datasetName, niTaxKey, false, 'actual');
