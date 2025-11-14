@@ -462,6 +462,49 @@
             "employer nic rate": 0.15,
             "employer nic secondary threshold": 96
         }
+    },
+
+
+"Budget - reduce thresholds (Jessop) - Scotland": 
+    {"income tax": [
+        {"name": "starter", "rate": 0.19, "threshold": 2827},
+        {"name": "basic", "rate": 0.20, "threshold": 14921},
+        {"name": "intermediate", "rate": 0.21, "threshold": 31092},
+        {"name": "higher", "rate": 0.42, "threshold": 62430},
+        {"name": "advanced", "rate": 0.45, "threshold": 125140},
+        {"name": "top", "rate": 0.48}
+    ],
+    
+    "statutory personal allowance": 12570,
+    "allowance withdrawal threshold": 100000,
+    "allowance withdrawal rate": 2,
+    
+    "child benefit": {"1st": 26.05, "subsequent": 17.25},
+    "HICBC start": 60000, "HICBC income per percent reduction": 200,
+    
+    "childcare subsidy per child": 10000,
+    "childcare min earnings": 10158, 
+    "childcare max earnings": 100000,
+    "childcare max children": 2,
+
+    "marriage allowance": 0.10,
+    "marriage allowance max earnings": 43662,
+    
+    "NI class 1 (employees)": [
+        {"name": "below primary threshold", "rate": 0, "threshold": 12570},
+        {"name": "primary threshold", "rate": 0.08, "threshold": 46270},
+        {"name": "upper earnings limit", "rate": 0.02}
+    ],
+
+    "NI class 4 (self-employed)": [
+        {"name": "below lower profits limit", "rate": 0, "threshold": 12570},
+        {"name": "main rate", "rate": 0.06, "threshold": 46270},
+        {"name": "above upper profits limit", "rate": 0.02}
+    ],
+    "employer NI": {
+        "employer nic rate": 0.15,
+        "employer nic secondary threshold": 96
+    }
     }
 
 }

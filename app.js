@@ -28,7 +28,10 @@ createApp({
     data() {
         return {
             // --- Modelling Constants ---
+            BASE_MAX_INCOME: 180000,
             MAX_INCOME: 180000,
+            AXIS_EXTENSION_THRESHOLD: 170000,
+            AXIS_EXTENSION_STEP: 100000,
             PERTURBATION: 100,
             CHART_COLOURS: ['#1133AF', '#FF5733'],
 
@@ -535,6 +538,37 @@ createApp({
             return `${value.toFixed(1)}%`;
         },
 
+        shouldExtendAxisForIncome(income) {
+            return typeof income === 'number' &&
+                !Number.isNaN(income) &&
+                income > this.AXIS_EXTENSION_THRESHOLD;
+        },
+
+        computeExtendedAxisCeiling(income) {
+            const step = this.AXIS_EXTENSION_STEP;
+            if (!step) return this.BASE_MAX_INCOME;
+            const safeIncome = Math.max(0, income || 0);
+            const multiplier = Math.floor(safeIncome / step) + 1;
+            return multiplier * step;
+        },
+
+        updateMaxIncomeForValue(income) {
+            const targetMax = this.shouldExtendAxisForIncome(income)
+                ? this.computeExtendedAxisCeiling(income)
+                : this.BASE_MAX_INCOME;
+            if (targetMax !== this.MAX_INCOME) {
+                this.MAX_INCOME = targetMax;
+                return true;
+            }
+            return false;
+        },
+
+        resetChartMaxIncome() {
+            if (this.MAX_INCOME !== this.BASE_MAX_INCOME) {
+                this.MAX_INCOME = this.BASE_MAX_INCOME;
+            }
+        },
+
         updateResultsFromState() {
             if (this.displayedIncome === null) {
                 return;
@@ -894,6 +928,8 @@ createApp({
             const selectedData = this.taxData[this.selectedDataset];
             if (!selectedData) return;
 
+            this.updateMaxIncomeForValue(income);
+
             const childBenefitCredit = this.getChildBenefitAmount(selectedData);
             const childcareCredit = this.calculateChildcareSubsidy(income, selectedData);
             const niTaxKey = this.getActiveNiKey();
@@ -1161,6 +1197,7 @@ createApp({
                 adjustmentsTotal: "-"
             };
             this.comparisonResults = null;
+            this.resetChartMaxIncome();
             this.updateChart();
         }
     },

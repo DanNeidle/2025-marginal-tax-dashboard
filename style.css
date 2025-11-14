@@ -487,6 +487,23 @@ input[type="number"] {
     object-fit: contain;
 }
 
+.article-link-banner {
+    font-size: 1rem;
+    color: #212529;
+    margin: 10px 0 12px;
+    line-height: 1.5;
+}
+
+.article-link-banner a {
+    color: #1133AF;
+    font-weight: 600;
+    text-decoration: underline;
+}
+
+.hide-branding .article-link-banner {
+    display: none;
+}
+
 .disclaimer {
     font-size: 0.85rem;
     color: #6c757d;
@@ -533,6 +550,7 @@ input[type="number"] {
     #chart-container,
     .income-panel,
     .results-card,
+    .article-link-banner,
     .disclaimer {
         max-width: var(--desktop-content-max-width);
         width: 100%;

@@ -23,7 +23,7 @@ to use it however they wish provided they attribute it to Tax Policy Associates 
     <main id="app" role="main">
         <header class="page-header" role="banner">
             <h1>Tax calculator and marginal rates</h1>
-            <a href="http://taxpolicy.org.uk/marginal-rates-2025" target="_blank" class="logo-link">
+            <a href="/the-budget-2025-tax-calculator/" target="_blank" class="logo-link" rel="noopener">
                 <img src="logo_standard.png" alt="Tax Policy logo" class="logo">
             </a>
         </header>
@@ -73,7 +73,7 @@ to use it however they wish provided they attribute it to Tax Policy Associates 
                     <div class="control control--children">
                         <label for="children-select">No. of children:</label>
                         <select id="children-select" v-model.number="children">
-                            <option v-for="n in 7" :value="n-1">{{ n-1 }}</option>
+                            <option v-for="n in 9" :value="n-1">{{ n-1 }}</option>
                         </select>
                     </div>
 
@@ -289,6 +289,10 @@ to use it however they wish provided they attribute it to Tax Policy Associates 
                 </div>
             </div>
         </section>
+
+        <p class="article-link-banner">
+            For instructions and full background please see <a href="/the-budget-2025-tax-calculator/" target="_blank" rel="noopener">our article here.</a>
+        </p>
 
         <p class="disclaimer">
             Please note this tool is designed to illustrate the effect of UK tax policy and proposed changes; it is not a complete or accurate tax calculator and should not be relied upon for anyone's tax return. All calculations are local to your device, and nothing is sent to us or over the internet.
